@@ -891,7 +891,9 @@
                 checkoutLoader.classList.remove('hidden');
 
                 try {
-                    const response = await fetch('http://localhost:4242/create-checkout-session', {
+                    // IMPORTANTE: Substitua a URL abaixo pela URL do seu back-end no Render
+                    const backendUrl = 'https://seu-backend.onrender.com';
+                    const response = await fetch(`${backendUrl}/create-checkout-session`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -1047,8 +1049,15 @@
             });
 
             // Gemini API Calls
-            const apiKey = "";
+            // IMPORTANTE: Para as funcionalidades de IA funcionarem no site publicado,
+            // você precisa gerar uma API Key no Google AI Studio e colar aqui.
+            // Lembre-se que não é seguro expor chaves de API no front-end em projetos públicos.
+            const apiKey = "SUA_API_KEY_DO_GEMINI_AQUI";
             async function callGeminiAPI(prompt, systemPrompt, outputElement, buttonElement) {
+                if (apiKey === "SUA_API_KEY_DO_GEMINI_AQUI") {
+                    outputElement.innerText = "Por favor, configure sua API Key do Gemini para usar esta funcionalidade.";
+                    return;
+                }
                 buttonElement.disabled = true;
                 outputElement.innerHTML = `<div class="flex items-center justify-center p-4"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div><p class="ml-3 text-gray-600">Gerando resposta...</p></div>`;
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
