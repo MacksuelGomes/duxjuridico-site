@@ -578,7 +578,7 @@
                 <div class="p-4 border-b">
                     <h1 class="text-2xl font-bold text-emerald-600">DUX<span class="font-normal text-gray-700">JURÍDICO</span></h1>
                 </div>
-                <nav class="p-4 space-y-2">
+                <nav id="sidebar-nav" class="p-4 space-y-2">
                     <a href="#" class="sidebar-link active" data-view="dashboard-view">
                         <span class="mr-3">🏠</span>
                         Dashboard
@@ -603,6 +603,12 @@
                         <span class="mr-3">💰</span>
                         Financeiro
                     </a>
+                    <div id="admin-menu-item" class="hidden border-t pt-2 mt-2">
+                         <a href="#" class="sidebar-link" data-view="admin-view">
+                            <span class="mr-3">⚙️</span>
+                            Administração
+                        </a>
+                    </div>
                 </nav>
             </aside>
     
@@ -745,20 +751,55 @@
                             </div>
                         </div>
                     </div>
+                     <!-- Admin View -->
+                    <div id="admin-view" class="hidden dashboard-view">
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6">Painel do Administrador</h3>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-2">Conceder Acesso de Teste</h4>
+                                <p class="text-sm text-gray-600 mb-4">Insira o e-mail do utilizador para criar uma conta de teste válida por 3 dias.</p>
+                                <form id="grant-trial-form" class="flex flex-col sm:flex-row gap-4">
+                                    <input type="email" id="trial-email" placeholder="email@exemplo.com" class="w-full sm:flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500" required>
+                                    <button type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 font-semibold shadow-sm">Conceder Acesso</button>
+                                </form>
+                                <div id="trial-feedback" class="text-sm mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
                 </main>
             </div>
         </div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyDUo2gwbaUkAoKG88e-z7bTc4Jek05XT9o",
+          authDomain: "duxjuridico-app2025.firebaseapp.com",
+          projectId: "duxjuridico-app2025",
+          storageBucket: "duxjuridico-app2025.appspot.com",
+          messagingSenderId: "733899747063",
+          appId: "1:733899747063:web:8e47c64324e48ffccd2df2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const adminEmail = "macksuelgl@gmail.com";
+
         document.addEventListener('DOMContentLoaded', function () {
             // State management
             let state = {
                 currentPage: 'main',
                 billingCycle: 'monthly',
                 selectedPlan: { name: null, price: null },
-                user: { name: 'Usuário' }
+                user: null
             };
             
             // DOM Elements
@@ -774,12 +815,18 @@
             const pageHeader = document.getElementById('page-header');
             const checkoutLoader = document.getElementById('checkout-loader');
             const checkoutContent = document.getElementById('checkout-content');
+            const adminMenuItem = document.getElementById('admin-menu-item');
 
             // Page Navigation Logic
             function navigateTo(pageName) {
                 state.currentPage = pageName;
                 Object.values(pages).forEach(page => page.classList.add('hidden'));
-                pages[pageName].classList.remove('hidden');
+                
+                if (pages[pageName]) {
+                    pages[pageName].classList.remove('hidden');
+                } else {
+                    pages.main.classList.remove('hidden'); // Fallback to main page
+                }
                 
                 pageHeader.style.display = (pageName === 'dashboard') ? 'none' : '';
                 
@@ -789,6 +836,27 @@
 
                 window.scrollTo(0, 0);
             }
+
+             // Firebase Auth State Observer
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    // User is signed in
+                    const userDocRef = doc(db, "users", user.uid);
+                    const userDoc = await getDoc(userDocRef);
+                    state.user = { uid: user.uid, email: user.email, ...userDoc.data() };
+                    
+                    if (state.currentPage !== 'dashboard') {
+                        navigateTo('dashboard');
+                    }
+                } else {
+                    // User is signed out
+                    state.user = null;
+                    adminMenuItem.classList.add('hidden');
+                    if (state.currentPage === 'dashboard') {
+                        navigateTo('main');
+                    }
+                }
+            });
 
             // Event Listeners for Navigation
             document.getElementById('logo').addEventListener('click', () => navigateTo('main'));
@@ -804,7 +872,17 @@
             
             document.getElementById('login-form').addEventListener('submit', (e) => {
                 e.preventDefault();
-                navigateTo('dashboard');
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        // Signed in 
+                        // onAuthStateChanged will handle navigation
+                    })
+                    .catch((error) => {
+                        alert("Erro ao fazer login: " + error.message);
+                    });
             });
 
             // Handle success/cancel redirection from Stripe
@@ -832,10 +910,10 @@
                     const annualDiscountEl = document.getElementById('annual-discount-summary');
                     
                     if (state.billingCycle === 'annually') {
-                        const monthlyPrice = parseFloat(state.selectedPlan.price) / 12 * 1.05; 
-                        const discountValue = (monthlyPrice * 12) - parseFloat(state.selectedPlan.price);
-                        document.getElementById('checkout-plan-price').textContent = `R$ ${state.selectedPlan.price}/ano`;
-                        document.getElementById('checkout-plan-discount').textContent = `- R$ ${discountValue.toFixed(2)}`;
+                        const monthlyPrice = parseFloat(card.dataset.priceMonthly);
+                        const discountValue = (monthlyPrice * 12 * 0.95);
+                        document.getElementById('checkout-plan-price').textContent = `R$ ${card.dataset.priceAnnually}/ano`;
+                        document.getElementById('checkout-plan-discount').textContent = `- R$ ${(monthlyPrice * 12 - discountValue).toFixed(2)}`;
                         annualDiscountEl.classList.remove('hidden');
                     } else {
                         document.getElementById('checkout-plan-price').textContent = `R$ ${state.selectedPlan.price}/mês`;
@@ -928,8 +1006,9 @@
             });
             
             document.getElementById('logout-btn').addEventListener('click', () => {
-                // Clear user session if any
-                navigateTo('main');
+                signOut(auth).catch((error) => {
+                    console.error("Erro ao fazer logout:", error);
+                });
             });
 
             function renderDashboardView(viewId) {
@@ -944,15 +1023,20 @@
                 });
 
                 const activeLink = document.querySelector(`.sidebar-link[data-view="${viewId}"]`);
-                pageTitle.textContent = activeLink.textContent.trim();
+                pageTitle.textContent = activeLink.textContent.trim().replace('🏠','').replace('📁','').replace('👥','').replace('📅','').replace('✔️','').replace('💰','').replace('⚙️','').trim();
 
-                if (viewId === 'dashboard-view' && !processChart) {
-                    renderDashboardCharts();
+                if (viewId === 'dashboard-view') {
+                     if (state.user) {
+                        document.getElementById('welcome-message').textContent = `Bom dia, ${state.user.displayName || state.user.email}!`;
+                        if (state.user.email === adminEmail) {
+                            adminMenuItem.classList.remove('hidden');
+                        }
+                    }
+                    if(!processChart) renderDashboardCharts();
                 }
             }
             
             function renderDashboardCharts() {
-                document.getElementById('welcome-message').textContent = `Bom dia, Dr(a). ${state.user.name}!`;
                 document.getElementById('current-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
                 const ctx = document.getElementById('processStatusChart').getContext('2d');
@@ -974,7 +1058,6 @@
 
 
             // Enterprise contact form logic is now handled by standard HTML form submission.
-            // The JavaScript handler has been removed for better reliability with Formspree.
 
             // Dynamic upsell buttons
             document.body.addEventListener('click', (event) => {
@@ -1041,9 +1124,6 @@
             });
 
             // Gemini API Calls
-            // IMPORTANTE: Para as funcionalidades de IA funcionarem no site publicado,
-            // você precisa gerar uma API Key no Google AI Studio e colar aqui.
-            // Lembre-se que não é seguro expor chaves de API no front-end em projetos públicos.
             const apiKey = "SUA_API_KEY_DO_GEMINI_AQUI";
             async function callGeminiAPI(prompt, systemPrompt, outputElement, buttonElement) {
                 if (apiKey === "SUA_API_KEY_DO_GEMINI_AQUI") {
@@ -1088,6 +1168,47 @@
                 const systemPrompt = "Você é um advogado assistente. Sua tarefa é ler o seguinte andamento processual e criar um resumo conciso e informativo em bullet points, destacando as informações mais importantes para o cliente.";
                 callGeminiAPI(input.value.slice(0, 250), systemPrompt, output, document.getElementById('summarize-button'));
             });
+
+            // Grant trial access form
+            document.getElementById('grant-trial-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const trialEmailInput = document.getElementById('trial-email');
+                const email = trialEmailInput.value;
+                const feedbackEl = document.getElementById('trial-feedback');
+                
+                feedbackEl.textContent = 'A criar utilizador de teste...';
+                feedbackEl.classList.remove('text-red-600', 'text-green-600');
+
+                // A password temporária será '123456', o utilizador deverá mudá-la.
+                const tempPassword = 'password123';
+
+                try {
+                    // 1. Criar o utilizador no Firebase Auth
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, tempPassword);
+                    const user = userCredential.user;
+
+                    // 2. Criar o registo do utilizador no Firestore com a data de expiração
+                    const trialEndDate = new Date();
+                    trialEndDate.setDate(trialEndDate.getDate() + 3);
+
+                    await setDoc(doc(db, "users", user.uid), {
+                        email: user.email,
+                        role: 'trial',
+                        trialEnds: trialEndDate,
+                        createdAt: new Date()
+                    });
+                    
+                    feedbackEl.textContent = `Utilizador de teste criado para ${email} com sucesso! A password temporária é "${tempPassword}".`;
+                    feedbackEl.classList.add('text-green-600');
+                    trialEmailInput.value = '';
+
+                } catch (error) {
+                    console.error("Erro ao criar utilizador de teste:", error);
+                    feedbackEl.textContent = 'Erro: ' + error.message;
+                    feedbackEl.classList.add('text-red-600');
+                }
+            });
+
         });
     </script>
 </body>
