@@ -1,0 +1,15 @@
+{
+  "name": "duxjuridico-backend",
+  "version": "1.0.0",
+  "description": "Servidor para processar pagamentos do DUXJURIDICO com Stripe.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "stripe": "^14.5.0"
+  }
+}
