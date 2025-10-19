@@ -339,7 +339,7 @@
                          </div>
                          <a href="#" class="text-sm text-emerald-600 hover:underline">Esqueceu a senha?</a>
                      </div>
-                     <button type="submit" class="w-full bg-emerald-600 text-white py-2 rounded-md hover:bg-emerald-700 transition-colors font-semibold shadow-sm">Entrar</button>
+                     <button type="submit" id="login-submit-btn" class="w-full bg-emerald-600 text-white py-2 rounded-md hover:bg-emerald-700 transition-colors font-semibold shadow-sm flex justify-center items-center disabled:bg-emerald-400">Entrar</button>
                  </form>
              </div>
              <p class="mt-6 text-center text-sm text-gray-600">
@@ -870,18 +870,28 @@
             document.getElementById('go-to-login-from-confirmation').addEventListener('click', () => navigateTo('login'));
             document.getElementById('enterprise-btn').addEventListener('click', () => navigateTo('enterprise'));
             
-            document.getElementById('login-form').addEventListener('submit', (e) => {
+            const loginForm = document.getElementById('login-form');
+            const loginSubmitBtn = document.getElementById('login-submit-btn');
+
+            loginForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
+                
+                loginSubmitBtn.disabled = true;
+                loginSubmitBtn.textContent = 'A entrar...';
 
                 signInWithEmailAndPassword(auth, email, password)
                     .then((userCredential) => {
-                        // Signed in 
-                        // onAuthStateChanged will handle navigation
+                        // Signed in - onAuthStateChanged will handle navigation
+                        navigateTo('dashboard');
                     })
                     .catch((error) => {
                         alert("Erro ao fazer login: " + error.message);
+                    })
+                    .finally(() => {
+                        loginSubmitBtn.disabled = false;
+                        loginSubmitBtn.textContent = 'Entrar';
                     });
             });
 
@@ -1030,6 +1040,8 @@
                         document.getElementById('welcome-message').textContent = `Bom dia, ${state.user.displayName || state.user.email}!`;
                         if (state.user.email === adminEmail) {
                             adminMenuItem.classList.remove('hidden');
+                        } else {
+                            adminMenuItem.classList.add('hidden');
                         }
                     }
                     if(!processChart) renderDashboardCharts();
