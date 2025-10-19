@@ -390,11 +390,11 @@
                 </div>
 
                 <!-- Plano Profissional -->
-                <div class="bg-white p-8 rounded-lg shadow-xl border-2 flex flex-col pricing-card-featured relative" data-plan-name="Profissional" data-price-monthly="249" data-price-annually="2838">
+                <div class="bg-white p-8 rounded-lg shadow-xl border-2 flex flex-col pricing-card-featured relative" data-plan-name="Profissional" data-price-monthly="430" data-price-annually="4890">
                     <span class="bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full absolute -top-4 right-4">MAIS POPULAR</span>
                     <h3 class="text-2xl font-bold mb-2">Profissional</h3>
                     <p class="text-gray-500 mb-6">Para escritórios em crescimento e equipes.</p>
-                    <p class="text-4xl font-bold mb-1">R$ <span class="plan-price">249</span></p>
+                    <p class="text-4xl font-bold mb-1">R$ <span class="plan-price">430</span></p>
                     <p class="text-lg font-normal text-gray-500 mb-6 plan-period">/mês</p>
                     <ul class="space-y-4 text-gray-600 flex-grow">
                         <li class="flex items-center"><span class="text-emerald-500 mr-2">✔</span> Até 5 Usuários</li>
@@ -891,7 +891,6 @@
                 checkoutLoader.classList.remove('hidden');
 
                 try {
-                    // COLE AQUI O URL DO SEU BACK-END NO RENDER
                     const backendUrl = 'https://duxjuridico-backend.onrender.com';
                     const response = await fetch(`${backendUrl}/create-checkout-session`, {
                         method: 'POST',
