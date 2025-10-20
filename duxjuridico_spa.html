@@ -79,6 +79,12 @@
             color: #065f46;
             font-weight: 600;
         }
+        .modal-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-container {
+            transition: transform 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -628,7 +634,7 @@
                     <div id="dashboard-view" class="dashboard-view">
                         <div class="mb-8">
                             <h2 class="text-3xl font-bold text-gray-800" id="welcome-message">Bom dia, Dr(a). Usuário!</h2>
-                            <p class="text-gray-600" id="current-date">Terça-feira, 14 de Outubro de 2025</p>
+                            <p class="text-gray-600" id="current-date">Terça-feira, 20 de Outubro de 2025</p>
                         </div>
                          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                             <div class="dashboard-kpi-card flex items-center">
@@ -685,70 +691,99 @@
 
                     <!-- Processes View -->
                     <div id="processes-view" class="hidden dashboard-view">
-                        <div class="bg-white p-6 rounded-lg shadow-sm">
-                            <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
-                                <h3 class="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">Gestão de Processos</h3>
-                                <button class="w-full sm:w-auto bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 font-semibold shadow-sm">Adicionar Novo Processo</button>
-                            </div>
+                         <!-- Esta será a visualização principal da lista de processos -->
+                        <div id="process-list-view">
+                            <div class="bg-white p-6 rounded-lg shadow-sm">
+                                <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">Gestão de Processos</h3>
+                                    <button id="add-process-btn" class="w-full sm:w-auto bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 font-semibold shadow-sm">Adicionar Novo Processo</button>
+                                </div>
 
-                            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
-                                <input type="text" placeholder="Pesquisar por nº do processo ou cliente..." class="w-full sm:flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                <select class="w-full sm:w-auto px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
-                                    <option>Todos os Status</option>
-                                    <option>Ativo</option>
-                                    <option>Suspenso</option>
-                                    <option>Encerrado</option>
-                                </select>
-                            </div>
+                                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
+                                    <input type="text" placeholder="Pesquisar por nº do processo ou cliente..." class="w-full sm:flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <select class="w-full sm:w-auto px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                                        <option>Todos os Status</option>
+                                        <option>Ativo</option>
+                                        <option>Suspenso</option>
+                                        <option>Encerrado</option>
+                                    </select>
+                                </div>
 
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left text-sm">
-                                    <thead class="bg-gray-50 text-gray-600 uppercase">
-                                        <tr>
-                                            <th class="p-3">Nº do Processo</th>
-                                            <th class="p-3">Cliente</th>
-                                            <th class="p-3">Parte Contrária</th>
-                                            <th class="p-3">Status</th>
-                                            <th class="p-3">Última Movimentação</th>
-                                            <th class="p-3">Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y">
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="p-3 font-medium">0012345-67.2025.8.26.0001</td>
-                                            <td class="p-3">Empresa XYZ Ltda</td>
-                                            <td class="p-3">Fornecedor ABC S.A.</td>
-                                            <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">Ativo</span></td>
-                                            <td class="p-3">13/10/2025</td>
-                                            <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold">Ver Detalhes</button></td>
-                                        </tr>
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="p-3 font-medium">0098765-43.2025.8.17.0001</td>
-                                            <td class="p-3">Maria Oliveira</td>
-                                            <td class="p-3">Plano de Saúde Vida Feliz</td>
-                                            <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">Ativo</span></td>
-                                            <td class="p-3">10/10/2025</td>
-                                            <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold">Ver Detalhes</button></td>
-                                        </tr>
-                                         <tr class="hover:bg-gray-50">
-                                            <td class="p-3 font-medium">0055555-11.2024.8.05.0001</td>
-                                            <td class="p-3">Construtora Morar Bem</td>
-                                            <td class="p-3">Condomínio Residencial Paz</td>
-                                            <td class="p-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">Suspenso</span></td>
-                                            <td class="p-3">01/09/2025</td>
-                                            <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold">Ver Detalhes</button></td>
-                                        </tr>
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="p-3 font-medium">0024680-13.2023.8.19.0001</td>
-                                            <td class="p-3">João da Silva</td>
-                                            <td class="p-3">Banco Dinheiro Certo</td>
-                                            <td class="p-3"><span class="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs font-semibold">Encerrado</span></td>
-                                            <td class="p-3">15/07/2025</td>
-                                            <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold">Ver Detalhes</button></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-sm">
+                                        <thead class="bg-gray-50 text-gray-600 uppercase">
+                                            <tr>
+                                                <th class="p-3">Nº do Processo</th>
+                                                <th class="p-3">Cliente</th>
+                                                <th class="p-3">Parte Contrária</th>
+                                                <th class="p-3">Status</th>
+                                                <th class="p-3">Última Movimentação</th>
+                                                <th class="p-3">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y" id="process-table-body">
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="p-3 font-medium">0012345-67.2025.8.26.0001</td>
+                                                <td class="p-3">Empresa XYZ Ltda</td>
+                                                <td class="p-3">Fornecedor ABC S.A.</td>
+                                                <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">Ativo</span></td>
+                                                <td class="p-3">13/10/2025</td>
+                                                <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold view-process-details-btn">Ver Detalhes</button></td>
+                                            </tr>
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="p-3 font-medium">0098765-43.2025.8.17.0001</td>
+                                                <td class="p-3">Maria Oliveira</td>
+                                                <td class="p-3">Plano de Saúde Vida Feliz</td>
+                                                <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">Ativo</span></td>
+                                                <td class="p-3">10/10/2025</td>
+                                                <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold view-process-details-btn">Ver Detalhes</button></td>
+                                            </tr>
+                                             <tr class="hover:bg-gray-50">
+                                                <td class="p-3 font-medium">0055555-11.2024.8.05.0001</td>
+                                                <td class="p-3">Construtora Morar Bem</td>
+                                                <td class="p-3">Condomínio Residencial Paz</td>
+                                                <td class="p-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">Suspenso</span></td>
+                                                <td class="p-3">01/09/2025</td>
+                                                <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold view-process-details-btn">Ver Detalhes</button></td>
+                                            </tr>
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="p-3 font-medium">0024680-13.2023.8.19.0001</td>
+                                                <td class="p-3">João da Silva</td>
+                                                <td class="p-3">Banco Dinheiro Certo</td>
+                                                <td class="p-3"><span class="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs font-semibold">Encerrado</span></td>
+                                                <td class="p-3">15/07/2025</td>
+                                                <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold view-process-details-btn">Ver Detalhes</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
+                        </div>
+
+                        <!-- Esta será a visualização de detalhes de um processo, inicialmente escondida -->
+                        <div id="process-detail-view" class="hidden">
+                             <button id="back-to-process-list-btn" class="mb-6 text-sm text-gray-500 hover:underline">← Voltar para a lista de processos</button>
+                             <div class="bg-white p-6 rounded-lg shadow-sm">
+                                <h3 class="text-2xl font-bold text-gray-800 mb-4">Detalhes do Processo</h3>
+                                <p id="detail-process-number" class="text-lg text-gray-600 mb-6"></p>
+                                <!-- Abas de navegação -->
+                                <div class="border-b border-gray-200">
+                                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                                        <a href="#" class="border-emerald-500 text-emerald-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Informações Gerais</a>
+                                        <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Andamentos</a>
+                                        <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Anexos</a>
+                                    </nav>
+                                </div>
+                                <!-- Conteúdo das abas -->
+                                <div class="mt-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div><p class="text-sm font-medium text-gray-500">Cliente</p><p id="detail-client" class="text-gray-900"></p></div>
+                                        <div><p class="text-sm font-medium text-gray-500">Parte Contrária</p><p id="detail-opposing-party" class="text-gray-900"></p></div>
+                                        <div><p class="text-sm font-medium text-gray-500">Status</p><p id="detail-status" class="text-gray-900"></p></div>
+                                        <div><p class="text-sm font-medium text-gray-500">Última Movimentação</p><p id="detail-last-update" class="text-gray-900"></p></div>
+                                    </div>
+                                </div>
+                             </div>
                         </div>
                     </div>
                      <!-- Admin View -->
@@ -770,6 +805,57 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para Adicionar Novo Processo -->
+    <div id="add-process-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 modal-overlay opacity-0">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white modal-container transform scale-95">
+            <div class="flex justify-between items-center pb-3 border-b">
+                <p class="text-2xl font-bold">Adicionar Novo Processo</p>
+                <div class="cursor-pointer z-50" id="close-modal-btn">
+                    <span class="text-3xl">&times;</span>
+                </div>
+            </div>
+            <div class="mt-5">
+                <form id="add-process-form">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label for="process-number" class="block text-sm font-medium text-gray-700">Nº do Processo</label>
+                            <input type="text" id="process-number" class="mt-1 w-full px-3 py-2 border rounded-md" required>
+                        </div>
+                        <div>
+                            <label for="process-client" class="block text-sm font-medium text-gray-700">Cliente</label>
+                            <input type="text" id="process-client" class="mt-1 w-full px-3 py-2 border rounded-md" required>
+                        </div>
+                        <div>
+                            <label for="process-opposing-party" class="block text-sm font-medium text-gray-700">Parte Contrária</label>
+                            <input type="text" id="process-opposing-party" class="mt-1 w-full px-3 py-2 border rounded-md" required>
+                        </div>
+                        <div>
+                            <label for="process-status" class="block text-sm font-medium text-gray-700">Status</label>
+                            <select id="process-status" class="mt-1 w-full px-3 py-2 border rounded-md bg-white">
+                                <option>Ativo</option>
+                                <option>Suspenso</option>
+                                <option>Encerrado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="process-court" class="block text-sm font-medium text-gray-700">Tribunal/Vara</label>
+                            <input type="text" id="process-court" class="mt-1 w-full px-3 py-2 border rounded-md">
+                        </div>
+                        <div class="md:col-span-2">
+                             <label for="process-description" class="block text-sm font-medium text-gray-700">Descrição/Objeto</label>
+                             <textarea id="process-description" rows="3" class="mt-1 w-full px-3 py-2 border rounded-md"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-4 mt-6">
+                        <button type="button" id="cancel-modal-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700">Salvar Processo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -843,7 +929,13 @@
                     // User is signed in
                     const userDocRef = doc(db, "users", user.uid);
                     const userDoc = await getDoc(userDocRef);
-                    state.user = { uid: user.uid, email: user.email, ...userDoc.data() };
+                    if (userDoc.exists()) {
+                        state.user = { uid: user.uid, email: user.email, ...userDoc.data() };
+                    } else {
+                        // Se o documento não existir, crie um básico
+                        state.user = { uid: user.uid, email: user.email, role: 'user' }; // default role
+                        await setDoc(userDocRef, { email: user.email, role: 'user', createdAt: new Date() });
+                    }
                     
                     if (state.currentPage !== 'dashboard') {
                         navigateTo('dashboard');
@@ -883,8 +975,7 @@
 
                 signInWithEmailAndPassword(auth, email, password)
                     .then((userCredential) => {
-                        // Signed in - onAuthStateChanged will handle navigation
-                        navigateTo('dashboard');
+                        // onAuthStateChanged will handle the rest
                     })
                     .catch((error) => {
                         alert("Erro ao fazer login: " + error.message);
@@ -904,7 +995,7 @@
                 }, 500);
             } else if (urlParams.has('canceled')) {
                 setTimeout(() => navigateTo('pricing'), 500);
-            } else {
+            } else if (!auth.currentUser) {
                  navigateTo('main');
             }
 
@@ -1031,14 +1122,18 @@
                 dashboardViews.forEach(view => {
                     view.classList.toggle('hidden', view.id !== viewId);
                 });
+                 
+                // Reset Process view to list
+                document.getElementById('process-list-view').classList.remove('hidden');
+                document.getElementById('process-detail-view').classList.add('hidden');
 
                 const activeLink = document.querySelector(`.sidebar-link[data-view="${viewId}"]`);
                 pageTitle.textContent = activeLink.textContent.trim().replace('🏠','').replace('📁','').replace('👥','').replace('📅','').replace('✔️','').replace('💰','').replace('⚙️','').trim();
 
                 if (viewId === 'dashboard-view') {
                      if (state.user) {
-                        document.getElementById('welcome-message').textContent = `Bom dia, ${state.user.displayName || state.user.email}!`;
-                        if (state.user.email === adminEmail) {
+                        document.getElementById('welcome-message').textContent = `Bom dia, ${state.user.name || state.user.email}!`;
+                        if (state.user.role === 'super-admin') {
                             adminMenuItem.classList.remove('hidden');
                         } else {
                             adminMenuItem.classList.add('hidden');
@@ -1069,6 +1164,70 @@
             }
 
 
+            // Processes Module Logic
+            const addProcessBtn = document.getElementById('add-process-btn');
+            const addProcessModal = document.getElementById('add-process-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const cancelModalBtn = document.getElementById('cancel-modal-btn');
+            const addProcessForm = document.getElementById('add-process-form');
+            const processListView = document.getElementById('process-list-view');
+            const processDetailView = document.getElementById('process-detail-view');
+            const backToProcessListBtn = document.getElementById('back-to-process-list-btn');
+            
+            function showModal() {
+                addProcessModal.classList.remove('hidden');
+                setTimeout(() => addProcessModal.classList.remove('opacity-0'), 10);
+                setTimeout(() => addProcessModal.querySelector('.modal-container').classList.remove('scale-95'), 10);
+            }
+            
+            function hideModal() {
+                addProcessModal.querySelector('.modal-container').classList.add('scale-95');
+                setTimeout(() => addProcessModal.classList.add('opacity-0'), 200);
+                setTimeout(() => addProcessModal.classList.add('hidden'), 500);
+            }
+
+            addProcessBtn.addEventListener('click', showModal);
+            closeModalBtn.addEventListener('click', hideModal);
+            cancelModalBtn.addEventListener('click', hideModal);
+
+            addProcessForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // Simulação: Adicionar a uma tabela ou enviar para DB
+                alert('Processo salvo com sucesso (simulação).');
+                addProcessForm.reset();
+                hideModal();
+            });
+
+            document.getElementById('process-table-body').addEventListener('click', (e) => {
+                if(e.target.classList.contains('view-process-details-btn')) {
+                    const row = e.target.closest('tr');
+                    const processData = {
+                        number: row.cells[0].textContent,
+                        client: row.cells[1].textContent,
+                        opposingParty: row.cells[2].textContent,
+                        status: row.cells[3].textContent,
+                        lastUpdate: row.cells[4].textContent,
+                    };
+                    showProcessDetails(processData);
+                }
+            });
+            
+            function showProcessDetails(data) {
+                processListView.classList.add('hidden');
+                processDetailView.classList.remove('hidden');
+
+                document.getElementById('detail-process-number').textContent = data.number;
+                document.getElementById('detail-client').textContent = data.client;
+                document.getElementById('detail-opposing-party').textContent = data.opposingParty;
+                document.getElementById('detail-status').textContent = data.status;
+                document.getElementById('detail-last-update').textContent = data.lastUpdate;
+            }
+            
+            backToProcessListBtn.addEventListener('click', () => {
+                processDetailView.classList.add('hidden');
+                processListView.classList.remove('hidden');
+            });
+            
             // Enterprise contact form logic is now handled by standard HTML form submission.
 
             // Dynamic upsell buttons
