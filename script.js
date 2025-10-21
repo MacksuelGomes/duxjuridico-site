@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, query, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -21,15 +21,11 @@ const adminEmail = "macksuelgl@gmail.com";
 let unsubscribeProcesses = null; 
 
 document.addEventListener('DOMContentLoaded', function () {
-    // State management
     let state = {
         currentPage: 'main',
-        billingCycle: 'monthly',
-        selectedPlan: { name: null, price: null },
         user: null
     };
     
-    // DOM Elements
     const pages = {
         main: document.getElementById('main-content'),
         login: document.getElementById('login-page'),
@@ -42,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const pageHeader = document.getElementById('page-header');
     const adminMenuItem = document.getElementById('admin-menu-item');
 
-    // Page Navigation Logic
     function navigateTo(pageName) {
         state.currentPage = pageName;
         Object.values(pages).forEach(page => page.classList.add('hidden'));
@@ -62,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function () {
         window.scrollTo(0, 0);
     }
 
-     // Firebase Auth State Observer
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const userDocRef = doc(db, "users", user.uid);
@@ -72,12 +66,10 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 const workspaceId = `ws_${user.uid}`;
                 state.user = { uid: user.uid, email: user.email, role: 'user', workspaceId };
-                await setDoc(userDocRef, { email: user.email, role: 'user', createdAt: new Date(), workspaceId });
+                await setDoc(userDocRef, { email: user.email, role: 'user', createdAt: new Date(), workspaceId: `ws_${user.uid}` });
             }
             
-            if (state.currentPage !== 'dashboard') {
-                navigateTo('dashboard');
-            }
+            navigateTo('dashboard');
             
             if (state.user && state.user.workspaceId) {
                 if (unsubscribeProcesses) unsubscribeProcesses();
@@ -94,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Event Listeners for Navigation
     document.getElementById('logo').addEventListener('click', () => navigateTo('main'));
     document.querySelectorAll('#login-btn-desktop, #login-btn-mobile').forEach(btn => btn.addEventListener('click', () => navigateTo('login')));
     document.querySelectorAll('#signup-btn-desktop, #signup-btn-mobile').forEach(btn => btn.addEventListener('click', () => navigateTo('pricing')));
@@ -118,6 +109,9 @@ document.addEventListener('DOMContentLoaded', function () {
         loginSubmitBtn.textContent = 'A entrar...';
 
         signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                 navigateTo('dashboard');
+            })
             .catch((error) => {
                 alert("Erro ao fazer login: " + error.message);
             })
@@ -126,19 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 loginSubmitBtn.textContent = 'Entrar';
             });
     });
-
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('success')) {
-         setTimeout(() => {
-            navigateTo('confirmation');
-            document.getElementById('confirmation-email').textContent = "seu email";
-        }, 500);
-    } else if (urlParams.has('canceled')) {
-        setTimeout(() => navigateTo('pricing'), 500);
-    } else if (!auth.currentUser) {
-         navigateTo('main');
-    }
-
+    
     // Dashboard Logic
     let processChart = null;
     const pageTitle = document.getElementById('page-title');
@@ -221,14 +203,18 @@ document.addEventListener('DOMContentLoaded', function () {
     
     function showModal() {
         addProcessModal.classList.remove('hidden');
-        setTimeout(() => addProcessModal.classList.remove('opacity-0'), 10);
-        setTimeout(() => addProcessModal.querySelector('.modal-container').classList.remove('scale-95'), 10);
+        setTimeout(() => {
+            addProcessModal.classList.remove('opacity-0');
+            addProcessModal.querySelector('.modal-container').classList.remove('scale-95');
+        }, 10);
     }
     
     function hideModal() {
         addProcessModal.querySelector('.modal-container').classList.add('scale-95');
-        setTimeout(() => addProcessModal.classList.add('opacity-0'), 200);
-        setTimeout(() => addProcessModal.classList.add('hidden'), 500);
+        addProcessModal.classList.add('opacity-0');
+        setTimeout(() => {
+            addProcessModal.classList.add('hidden');
+        }, 300);
     }
 
     addProcessBtn.addEventListener('click', showModal);
@@ -243,21 +229,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const processData = {
-            number: document.getElementById('process-number').value,
-            folder: document.getElementById('process-folder').value,
-            client: document.getElementById('process-client').value,
-            opposingParty: document.getElementById('process-opposing-party').value,
-            area: document.getElementById('process-area').value,
-            actionType: document.getElementById('process-action-type').value,
-            value: document.getElementById('process-value').value,
-            feesType: document.getElementById('process-fees-type').value,
-            feesValue: document.getElementById('process-fees-value').value,
-            status: document.getElementById('process-status').value,
-            court: document.getElementById('process-court').value,
-            distributionDate: document.getElementById('process-distribution-date').value,
-            lawyer: document.getElementById('process-lawyer').value,
-            judge: document.getElementById('process-judge').value,
-            description: document.getElementById('process-description').value,
+            number: addProcessForm.elements['number'].value,
+            folder: addProcessForm.elements['folder'].value,
+            client: addProcessForm.elements['client'].value,
+            opposingParty: addProcessForm.elements['opposingParty'].value,
+            area: addProcessForm.elements['area'].value,
+            actionType: addProcessForm.elements['actionType'].value,
+            value: addProcessForm.elements['value'].value,
+            feesType: addProcessForm.elements['feesType'].value,
+            feesValue: addProcessForm.elements['feesValue'].value,
+            status: addProcessForm.elements['status'].value,
+            court: addProcessForm.elements['court'].value,
+            distributionDate: addProcessForm.elements['distributionDate'].value,
+            lawyer: addProcessForm.elements['lawyer'].value,
+            judge: addProcessForm.elements['judge'].value,
+            description: addProcessForm.elements['description'].value,
             lastUpdate: new Date().toLocaleDateString('pt-BR'),
             createdAt: new Date(),
         };
@@ -274,7 +260,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
     function listenToProcesses(workspaceId) {
-        if (!workspaceId) return;
+        if (unsubscribeProcesses) unsubscribeProcesses();
+
         const processesQuery = query(collection(db, "workspaces", workspaceId, "processes"));
         unsubscribeProcesses = onSnapshot(processesQuery, (querySnapshot) => {
             const processes = [];
@@ -282,8 +269,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 processes.push({ id: doc.id, ...doc.data() });
             });
             renderProcessesTable(processes);
-        }, (error) => {
-            console.error("Erro ao escutar processos:", error);
         });
     }
     
@@ -298,11 +283,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const statusColor = proc.status === 'Ativo' ? 'green' : (proc.status === 'Suspenso' ? 'yellow' : 'gray');
             const row = `
                 <tr class="hover:bg-gray-50">
-                    <td class="p-3 font-medium">${proc.number}</td>
-                    <td class="p-3">${proc.client}</td>
-                    <td class="p-3">${proc.opposingParty}</td>
-                    <td class="p-3"><span class="bg-${statusColor}-100 text-${statusColor}-800 px-2 py-1 rounded-full text-xs font-semibold">${proc.status}</span></td>
-                    <td class="p-3">${proc.lastUpdate}</td>
+                    <td class="p-3 font-medium">${proc.number || 'N/A'}</td>
+                    <td class="p-3">${proc.client || 'N/A'}</td>
+                    <td class="p-3">${proc.opposingParty || 'N/A'}</td>
+                    <td class="p-3"><span class="bg-${statusColor}-100 text-${statusColor}-800 px-2 py-1 rounded-full text-xs font-semibold">${proc.status || 'N/A'}</span></td>
+                    <td class="p-3">${proc.lastUpdate || 'N/A'}</td>
                     <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold view-process-details-btn" data-id="${proc.id}">Ver Detalhes</button></td>
                 </tr>
             `;
@@ -375,23 +360,9 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (error) {
             console.error("Erro ao criar utilizador de teste:", error);
             feedbackEl.textContent = 'Erro: ' + error.message;
-            feedbackEl.classList.add('text-red-600');
         }
     });
 
-    // Dynamic upsell buttons
-    document.body.addEventListener('click', (event) => {
-        if (event.target.classList.contains('upsell-button')) {
-            navigateTo('pricing');
-        }
-    });
-
-    // Mobile menu
-    document.getElementById('mobile-menu-button').addEventListener('click', () => {
-        document.getElementById('mobile-menu').classList.toggle('hidden');
-    });
-
-    // Feature cards accordion
     document.querySelectorAll('.feature-card').forEach(card => {
         card.addEventListener('click', () => {
             card.classList.toggle('open');
@@ -400,7 +371,4 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-</script>
 
-</body>
-</html>
