@@ -425,9 +425,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Gemini API Calls
-        const apiKey = ""; // Insira a sua chave de API aqui, se desejar testar.
+        const apiKey = "AIzaSyBY2VHaBLS0VHfe6Lil-suPtBrgJvs6DbQ";
         async function callGeminiAPI(prompt, systemPrompt, outputElement, buttonElement) {
-            if (!apiKey || apiKey === "SUA_API_KEY_DO_GEMINI_AQUI") {
+            if (!apiKey) {
                 outputElement.innerText = "Funcionalidade de IA não configurada.";
                 return;
             }
