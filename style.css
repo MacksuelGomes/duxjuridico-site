@@ -1,0 +1,83 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #fcfdfc;
+}
+.nav-link.active {
+    color: #059669;
+    font-weight: 700;
+}
+.feature-card-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out;
+}
+.feature-card.open .feature-card-content {
+    max-height: 500px;
+}
+.chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 300px;
+    max-height: 400px;
+}
+@media (min-width: 768px) {
+    .chart-container {
+        height: 400px;
+    }
+}
+.pricing-card-featured {
+    transform: scale(1.05);
+    border-color: #059669;
+}
+.billing-toggle-btn {
+    transition: all 0.3s ease;
+}
+.billing-toggle-btn.active {
+    background-color: #059669;
+    color: white;
+}
+.dashboard-kpi-card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    color: #4b5563;
+    transition: background-color 0.2s, color 0.2s;
+}
+.sidebar-link:hover {
+    background-color: #f3f4f6;
+    color: #1f2937;
+}
+.sidebar-link.active {
+    background-color: #dcfce7;
+    color: #065f46;
+    font-weight: 600;
+}
+.modal-overlay {
+    transition: opacity 0.3s ease-in-out;
+}
+.modal-container {
+    transition: transform 0.3s ease-in-out;
+}
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.modal-body::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
