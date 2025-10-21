@@ -721,11 +721,11 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label for="process-number" class="block text-sm font-medium text-gray-700">Nº do Processo</label>
-                                    <input type="text" id="process-number" class="mt-1 w-full px-3 py-2 border rounded-md" required>
+                                    <input type="text" id="process-number" name="number" class="mt-1 w-full px-3 py-2 border rounded-md" required>
                                 </div>
                                 <div>
                                     <label for="process-folder" class="block text-sm font-medium text-gray-700">Pasta Interna / Ref.</label>
-                                    <input type="text" id="process-folder" class="mt-1 w-full px-3 py-2 border rounded-md">
+                                    <input type="text" id="process-folder" name="folder" class="mt-1 w-full px-3 py-2 border rounded-md">
                                 </div>
                             </div>
                         </div>
@@ -736,11 +736,11 @@
                              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label for="process-client" class="block text-sm font-medium text-gray-700">Cliente</label>
-                                    <input type="text" id="process-client" class="mt-1 w-full px-3 py-2 border rounded-md" required>
+                                    <input type="text" id="process-client" name="client" class="mt-1 w-full px-3 py-2 border rounded-md" required>
                                 </div>
                                 <div>
                                     <label for="process-opposing-party" class="block text-sm font-medium text-gray-700">Parte Contrária</label>
-                                    <input type="text" id="process-opposing-party" class="mt-1 w-full px-3 py-2 border rounded-md" required>
+                                    <input type="text" id="process-opposing-party" name="opposingParty" class="mt-1 w-full px-3 py-2 border rounded-md" required>
                                 </div>
                             </div>
                         </div>
@@ -751,7 +751,7 @@
                              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label for="process-area" class="block text-sm font-medium text-gray-700">Área do Direito</label>
-                                    <select id="process-area" class="mt-1 w-full px-3 py-2 border rounded-md bg-white">
+                                    <select id="process-area" name="area" class="mt-1 w-full px-3 py-2 border rounded-md bg-white">
                                         <option>Cível</option>
                                         <option>Trabalhista</option>
                                         <option>Tributário</option>
@@ -762,7 +762,7 @@
                                 </div>
                                 <div>
                                     <label for="process-action-type" class="block text-sm font-medium text-gray-700">Tipo de Ação</label>
-                                    <input type="text" id="process-action-type" class="mt-1 w-full px-3 py-2 border rounded-md">
+                                    <input type="text" id="process-action-type" name="actionType" class="mt-1 w-full px-3 py-2 border rounded-md">
                                 </div>
                             </div>
                         </div>
@@ -773,11 +773,11 @@
                              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <label for="process-value" class="block text-sm font-medium text-gray-700">Valor da Causa</label>
-                                    <input type="number" id="process-value" class="mt-1 w-full px-3 py-2 border rounded-md" placeholder="R$">
+                                    <input type="number" id="process-value" name="value" class="mt-1 w-full px-3 py-2 border rounded-md" placeholder="R$">
                                 </div>
                                 <div>
                                     <label for="process-fees-type" class="block text-sm font-medium text-gray-700">Tipo de Honorários</label>
-                                    <select id="process-fees-type" class="mt-1 w-full px-3 py-2 border rounded-md bg-white">
+                                    <select id="process-fees-type" name="feesType" class="mt-1 w-full px-3 py-2 border rounded-md bg-white">
                                         <option>Quota Litis</option>
                                         <option>Valor Fixo</option>
                                         <option>Por Hora</option>
@@ -786,7 +786,7 @@
                                 </div>
                                 <div>
                                     <label for="process-fees-value" class="block text-sm font-medium text-gray-700">Valor dos Honorários</label>
-                                    <input type="text" id="process-fees-value" class="mt-1 w-full px-3 py-2 border rounded-md" placeholder="R$ ou %">
+                                    <input type="text" id="process-fees-value" name="feesValue" class="mt-1 w-full px-3 py-2 border rounded-md" placeholder="R$ ou %">
                                 </div>
                             </div>
                         </div>
@@ -797,7 +797,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label for="process-status" class="block text-sm font-medium text-gray-700">Status</label>
-                                    <select id="process-status" class="mt-1 w-full px-3 py-2 border rounded-md bg-white">
+                                    <select id="process-status" name="status" class="mt-1 w-full px-3 py-2 border rounded-md bg-white">
                                         <option>Ativo</option>
                                         <option>Suspenso</option>
                                         <option>Encerrado</option>
@@ -805,23 +805,23 @@
                                 </div>
                                 <div>
                                     <label for="process-court" class="block text-sm font-medium text-gray-700">Tribunal/Vara</label>
-                                    <input type="text" id="process-court" class="mt-1 w-full px-3 py-2 border rounded-md">
+                                    <input type="text" id="process-court" name="court" class="mt-1 w-full px-3 py-2 border rounded-md">
                                 </div>
                                  <div>
                                     <label for="process-distribution-date" class="block text-sm font-medium text-gray-700">Data de Distribuição</label>
-                                    <input type="date" id="process-distribution-date" class="mt-1 w-full px-3 py-2 border rounded-md">
+                                    <input type="date" id="process-distribution-date" name="distributionDate" class="mt-1 w-full px-3 py-2 border rounded-md">
                                 </div>
                                  <div>
                                     <label for="process-lawyer" class="block text-sm font-medium text-gray-700">Advogado Responsável</label>
-                                    <input type="text" id="process-lawyer" class="mt-1 w-full px-3 py-2 border rounded-md">
+                                    <input type="text" id="process-lawyer" name="lawyer" class="mt-1 w-full px-3 py-2 border rounded-md">
                                 </div>
                                 <div>
                                     <label for="process-judge" class="block text-sm font-medium text-gray-700">Juiz/Relator</label>
-                                    <input type="text" id="process-judge" class="mt-1 w-full px-3 py-2 border rounded-md">
+                                    <input type="text" id="process-judge" name="judge" class="mt-1 w-full px-3 py-2 border rounded-md">
                                 </div>
                                 <div class="md:col-span-2">
                                      <label for="process-description" class="block text-sm font-medium text-gray-700">Descrição/Objeto</label>
-                                     <textarea id="process-description" rows="3" class="mt-1 w-full px-3 py-2 border rounded-md"></textarea>
+                                     <textarea id="process-description" name="description" rows="3" class="mt-1 w-full px-3 py-2 border rounded-md"></textarea>
                                 </div>
                             </div>
                         </div>
