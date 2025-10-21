@@ -71,7 +71,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 await setDoc(userDocRef, { email: user.email, role: 'user', createdAt: new Date(), workspaceId: `ws_${user.uid}` });
             }
             
-            navigateTo('dashboard');
+            if(state.currentPage !== 'dashboard') {
+                navigateTo('dashboard');
+            }
             
             if (state.user && state.user.workspaceId) {
                 if (unsubscribeProcesses) unsubscribeProcesses();
@@ -382,16 +384,92 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Simple UI helpers
-    document.querySelectorAll('.feature-card').forEach(card => {
-        card.addEventListener('click', () => {
-            card.classList.toggle('open');
-            card.querySelector('.feature-card-header span').style.transform = card.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+    // Main Page specific logic
+    function initializeMainPageComponents() {
+        // Feature cards accordion
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('open');
+                card.querySelector('.feature-card-header span').style.transform = card.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+            });
         });
-    });
-    
-     document.getElementById('mobile-menu-button').addEventListener('click', () => {
-        document.getElementById('mobile-menu').classList.toggle('hidden');
-    });
+
+        // Mobile menu
+        document.getElementById('mobile-menu-button').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // Chart.js Radar Chart on main page
+        const impactCtx = document.getElementById('impactChart').getContext('2d');
+        if (impactCtx) {
+            new Chart(impactCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Gestão & Operação', 'Produtividade', 'Inteligência & Finanças', 'Administração'],
+                    datasets: [{
+                        label: 'Eficiência',
+                        data: [9, 8, 7, 7],
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2,
+                    }, {
+                        label: 'Inovação',
+                        data: [5, 7, 10, 6],
+                        backgroundColor: 'rgba(107, 114, 128, 0.2)',
+                        borderColor: 'rgba(107, 114, 128, 1)',
+                        borderWidth: 2,
+                    }]
+                },
+                options: { maintainAspectRatio: false, responsive: true, scales: { r: { suggestedMin: 0, suggestedMax: 10 } } }
+            });
+        }
+
+        // Gemini API Calls
+        const apiKey = ""; // Insira a sua chave de API aqui, se desejar testar.
+        async function callGeminiAPI(prompt, systemPrompt, outputElement, buttonElement) {
+            if (!apiKey || apiKey === "SUA_API_KEY_DO_GEMINI_AQUI") {
+                outputElement.innerText = "Funcionalidade de IA não configurada.";
+                return;
+            }
+            buttonElement.disabled = true;
+            outputElement.innerHTML = `<div class="flex items-center justify-center p-4"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div><p class="ml-3 text-gray-600">Gerando resposta...</p></div>`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
+            try {
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    let text = candidate.content.parts[0].text;
+                    const upsellMessage = `<br><div class="mt-2 p-3 bg-emerald-50 border-l-4 border-emerald-400 text-emerald-800 text-sm"><strong>Esta é uma demonstração.</strong> Para análises completas, <button class="font-bold underline focus:outline-none upsell-button">contrate um de nossos planos</button>.</div>`;
+                    outputElement.innerHTML = text + upsellMessage;
+                } else {
+                    throw new Error("Resposta inválida da API.");
+                }
+            } catch (error) {
+                outputElement.innerText = "Desculpe, ocorreu um erro.";
+            } finally {
+                buttonElement.disabled = false;
+            }
+        }
+
+        document.getElementById('simplify-button').addEventListener('click', () => {
+            const input = document.getElementById('legal-text-input');
+            const output = document.getElementById('simplify-output');
+            const systemPrompt = "Você é um assistente jurídico especializado em Legal Design. Sua tarefa é reescrever textos jurídicos complexos em uma linguagem simples, clara e acessível para leigos, sem perder o significado essencial. Mantenha um tom profissional e objetivo.";
+            callGeminiAPI(input.value.slice(0, 250), systemPrompt, output, document.getElementById('simplify-button'));
+        });
+
+        document.getElementById('summarize-button').addEventListener('click', () => {
+            const input = document.getElementById('process-text-input');
+            const output = document.getElementById('summarize-output');
+            const systemPrompt = "Você é um advogado assistente. Sua tarefa é ler o seguinte andamento processual e criar um resumo conciso e informativo em bullet points, destacando as informações mais importantes para o cliente.";
+            callGeminiAPI(input.value.slice(0, 250), systemPrompt, output, document.getElementById('summarize-button'));
+        });
+    }
+
+    // Initialize components for the main page
+    initializeMainPageComponents();
 });
 
