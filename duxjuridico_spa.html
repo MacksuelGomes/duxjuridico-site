@@ -722,38 +722,8 @@
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y" id="process-table-body">
-                                            <tr class="hover:bg-gray-50">
-                                                <td class="p-3 font-medium">0012345-67.2025.8.26.0001</td>
-                                                <td class="p-3">Empresa XYZ Ltda</td>
-                                                <td class="p-3">Fornecedor ABC S.A.</td>
-                                                <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">Ativo</span></td>
-                                                <td class="p-3">13/10/2025</td>
-                                                <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold view-process-details-btn">Ver Detalhes</button></td>
-                                            </tr>
-                                            <tr class="hover:bg-gray-50">
-                                                <td class="p-3 font-medium">0098765-43.2025.8.17.0001</td>
-                                                <td class="p-3">Maria Oliveira</td>
-                                                <td class="p-3">Plano de Saúde Vida Feliz</td>
-                                                <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">Ativo</span></td>
-                                                <td class="p-3">10/10/2025</td>
-                                                <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold view-process-details-btn">Ver Detalhes</button></td>
-                                            </tr>
-                                             <tr class="hover:bg-gray-50">
-                                                <td class="p-3 font-medium">0055555-11.2024.8.05.0001</td>
-                                                <td class="p-3">Construtora Morar Bem</td>
-                                                <td class="p-3">Condomínio Residencial Paz</td>
-                                                <td class="p-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">Suspenso</span></td>
-                                                <td class="p-3">01/09/2025</td>
-                                                <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold view-process-details-btn">Ver Detalhes</button></td>
-                                            </tr>
-                                            <tr class="hover:bg-gray-50">
-                                                <td class="p-3 font-medium">0024680-13.2023.8.19.0001</td>
-                                                <td class="p-3">João da Silva</td>
-                                                <td class="p-3">Banco Dinheiro Certo</td>
-                                                <td class="p-3"><span class="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs font-semibold">Encerrado</span></td>
-                                                <td class="p-3">15/07/2025</td>
-                                                <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold view-process-details-btn">Ver Detalhes</button></td>
-                                            </tr>
+                                            <!-- As linhas da tabela serão inseridas aqui dinamicamente -->
+                                            <tr><td colspan="6" class="p-4 text-center text-gray-500">A carregar processos...</td></tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -781,6 +751,8 @@
                                         <div><p class="text-sm font-medium text-gray-500">Parte Contrária</p><p id="detail-opposing-party" class="text-gray-900"></p></div>
                                         <div><p class="text-sm font-medium text-gray-500">Status</p><p id="detail-status" class="text-gray-900"></p></div>
                                         <div><p class="text-sm font-medium text-gray-500">Última Movimentação</p><p id="detail-last-update" class="text-gray-900"></p></div>
+                                        <div><p class="text-sm font-medium text-gray-500">Tribunal/Vara</p><p id="detail-court" class="text-gray-900"></p></div>
+                                        <div class="md:col-span-2"><p class="text-sm font-medium text-gray-500">Descrição</p><p id="detail-description" class="text-gray-900"></p></div>
                                     </div>
                                 </div>
                              </div>
@@ -860,7 +832,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, query, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -878,6 +850,7 @@
         const db = getFirestore(app);
 
         const adminEmail = "macksuelgl@gmail.com";
+        let unsubscribeProcesses = null; // To hold the real-time listener
 
         document.addEventListener('DOMContentLoaded', function () {
             // State management
@@ -926,24 +899,30 @@
              // Firebase Auth State Observer
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    // User is signed in
                     const userDocRef = doc(db, "users", user.uid);
                     const userDoc = await getDoc(userDocRef);
                     if (userDoc.exists()) {
                         state.user = { uid: user.uid, email: user.email, ...userDoc.data() };
                     } else {
-                        // Se o documento não existir, crie um básico
-                        state.user = { uid: user.uid, email: user.email, role: 'user' }; // default role
-                        await setDoc(userDocRef, { email: user.email, role: 'user', createdAt: new Date() });
+                        state.user = { uid: user.uid, email: user.email, role: 'user', workspaceId: `ws_${user.uid}` };
+                        await setDoc(userDocRef, { email: user.email, role: 'user', createdAt: new Date(), workspaceId: `ws_${user.uid}` });
                     }
                     
                     if (state.currentPage !== 'dashboard') {
                         navigateTo('dashboard');
                     }
+                    
+                    // Attach real-time listener for processes
+                    if (state.user && state.user.workspaceId) {
+                        listenToProcesses(state.user.workspaceId);
+                    }
+
                 } else {
-                    // User is signed out
                     state.user = null;
                     adminMenuItem.classList.add('hidden');
+                    if (unsubscribeProcesses) {
+                        unsubscribeProcesses(); // Detach listener on logout
+                    }
                     if (state.currentPage === 'dashboard') {
                         navigateTo('main');
                     }
@@ -1173,6 +1152,7 @@
             const processListView = document.getElementById('process-list-view');
             const processDetailView = document.getElementById('process-detail-view');
             const backToProcessListBtn = document.getElementById('back-to-process-list-btn');
+            const processTableBody = document.getElementById('process-table-body');
             
             function showModal() {
                 addProcessModal.classList.remove('hidden');
@@ -1190,25 +1170,81 @@
             closeModalBtn.addEventListener('click', hideModal);
             cancelModalBtn.addEventListener('click', hideModal);
 
-            addProcessForm.addEventListener('submit', (e) => {
+            addProcessForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                // Simulação: Adicionar a uma tabela ou enviar para DB
-                alert('Processo salvo com sucesso (simulação).');
-                addProcessForm.reset();
-                hideModal();
-            });
+                if (!state.user || !state.user.workspaceId) {
+                    alert("Erro: Não foi possível identificar o seu workspace. Faça login novamente.");
+                    return;
+                }
 
-            document.getElementById('process-table-body').addEventListener('click', (e) => {
-                if(e.target.classList.contains('view-process-details-btn')) {
-                    const row = e.target.closest('tr');
-                    const processData = {
-                        number: row.cells[0].textContent,
-                        client: row.cells[1].textContent,
-                        opposingParty: row.cells[2].textContent,
-                        status: row.cells[3].textContent,
-                        lastUpdate: row.cells[4].textContent,
-                    };
-                    showProcessDetails(processData);
+                const processData = {
+                    number: document.getElementById('process-number').value,
+                    client: document.getElementById('process-client').value,
+                    opposingParty: document.getElementById('process-opposing-party').value,
+                    status: document.getElementById('process-status').value,
+                    court: document.getElementById('process-court').value,
+                    description: document.getElementById('process-description').value,
+                    lastUpdate: new Date().toLocaleDateString('pt-BR'),
+                    createdAt: new Date(),
+                };
+
+                try {
+                    const workspaceId = state.user.workspaceId;
+                    await addDoc(collection(db, "workspaces", workspaceId, "processes"), processData);
+                    addProcessForm.reset();
+                    hideModal();
+                } catch (error) {
+                    console.error("Erro ao salvar processo: ", error);
+                    alert("Ocorreu um erro ao salvar o processo.");
+                }
+            });
+            
+            function listenToProcesses(workspaceId) {
+                if (unsubscribeProcesses) unsubscribeProcesses(); // Unsubscribe from previous listener
+
+                const processesQuery = query(collection(db, "workspaces", workspaceId, "processes"));
+                unsubscribeProcesses = onSnapshot(processesQuery, (querySnapshot) => {
+                    const processes = [];
+                    querySnapshot.forEach((doc) => {
+                        processes.push({ id: doc.id, ...doc.data() });
+                    });
+                    renderProcessesTable(processes);
+                });
+            }
+            
+            function renderProcessesTable(processes) {
+                processTableBody.innerHTML = '';
+                if (processes.length === 0) {
+                    processTableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Nenhum processo encontrado. Adicione um novo para começar.</td></tr>';
+                    return;
+                }
+
+                processes.forEach(proc => {
+                    const statusColor = proc.status === 'Ativo' ? 'green' : (proc.status === 'Suspenso' ? 'yellow' : 'gray');
+                    const row = `
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 font-medium">${proc.number}</td>
+                            <td class="p-3">${proc.client}</td>
+                            <td class="p-3">${proc.opposingParty}</td>
+                            <td class="p-3"><span class="bg-${statusColor}-100 text-${statusColor}-800 px-2 py-1 rounded-full text-xs font-semibold">${proc.status}</span></td>
+                            <td class="p-3">${proc.lastUpdate}</td>
+                            <td class="p-3"><button class="text-emerald-600 hover:underline font-semibold view-process-details-btn" data-id="${proc.id}">Ver Detalhes</button></td>
+                        </tr>
+                    `;
+                    processTableBody.innerHTML += row;
+                });
+            }
+
+            processTableBody.addEventListener('click', async (e) => {
+                if (e.target.classList.contains('view-process-details-btn')) {
+                    const processId = e.target.dataset.id;
+                    if (!state.user || !state.user.workspaceId) return;
+
+                    const processDocRef = doc(db, "workspaces", state.user.workspaceId, "processes", processId);
+                    const processDoc = await getDoc(processDocRef);
+                    if (processDoc.exists()) {
+                        showProcessDetails(processDoc.data());
+                    }
                 }
             });
             
@@ -1216,11 +1252,13 @@
                 processListView.classList.add('hidden');
                 processDetailView.classList.remove('hidden');
 
-                document.getElementById('detail-process-number').textContent = data.number;
-                document.getElementById('detail-client').textContent = data.client;
-                document.getElementById('detail-opposing-party').textContent = data.opposingParty;
-                document.getElementById('detail-status').textContent = data.status;
-                document.getElementById('detail-last-update').textContent = data.lastUpdate;
+                document.getElementById('detail-process-number').textContent = data.number || 'Não informado';
+                document.getElementById('detail-client').textContent = data.client || 'Não informado';
+                document.getElementById('detail-opposing-party').textContent = data.opposingParty || 'Não informado';
+                document.getElementById('detail-status').textContent = data.status || 'Não informado';
+                document.getElementById('detail-last-update').textContent = data.lastUpdate || 'Não informado';
+                document.getElementById('detail-court').textContent = data.court || 'Não informado';
+                document.getElementById('detail-description').textContent = data.description || 'Nenhuma descrição fornecida.';
             }
             
             backToProcessListBtn.addEventListener('click', () => {
@@ -1361,12 +1399,14 @@
                     // 2. Criar o registo do utilizador no Firestore com a data de expiração
                     const trialEndDate = new Date();
                     trialEndDate.setDate(trialEndDate.getDate() + 3);
+                    const workspaceId = `ws_${user.uid}`;
 
                     await setDoc(doc(db, "users", user.uid), {
                         email: user.email,
                         role: 'trial',
                         trialEnds: trialEndDate,
-                        createdAt: new Date()
+                        createdAt: new Date(),
+                        workspaceId: workspaceId
                     });
                     
                     feedbackEl.textContent = `Utilizador de teste criado para ${email} com sucesso! A password temporária é "${tempPassword}".`;
